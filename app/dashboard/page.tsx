@@ -12,6 +12,19 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [triggering, setTriggering] = useState(false);
 
+  const [timeRange, setTimeRange] = useState('all');
+
+  const filteredSnapshots = snapshots.filter((s: any) => {
+    if (timeRange === 'all') return true;
+    const snapshotDate = new Date(s.captured_at || Date.now());
+    const now = new Date();
+    const diffDays = (now.getTime() - snapshotDate.getTime()) / (1000 * 3600 * 24);
+    if (timeRange === '7days') return diffDays <= 7;
+    if (timeRange === '30days') return diffDays <= 30;
+    if (timeRange === 'year') return diffDays <= 365;
+    return true;
+  });
+
   const fetchSnapshots = async () => {
     try {
       const res = await fetch('/api/snapshots-history'); // We'll wire this or fetch user snapshots
@@ -78,6 +91,26 @@ export default function Dashboard() {
           </button>
         </div>
       </div>
+      {/* 👉 1. ADD TIME HORIZON FILTER BAR HERE */}
+    <div className="flex items-center justify-between mb-6 bg-gray-900 p-4 rounded-xl border border-gray-800">
+      <span className="text-gray-400 font-medium">Time Horizon Filter:</span>
+      <div className="flex gap-2">
+        {['7days', '30days', 'year', 'all'].map((range) => (
+          <button
+            key={range}
+            onClick={() => setTimeRange(range)}
+            className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition ${
+              timeRange === range
+                ? 'bg-green-600 text-white shadow'
+                : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+            }`}
+          >
+            {range === '7days' ? 'Last 7 Days' : range === '30days' ? 'Last 30 Days' : range === 'year' ? 'Past Year' : 'All Time'}
+          </button>
+        ))}
+      </div>
+    </div>
+
 
       {/* Overview Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -91,7 +124,7 @@ export default function Dashboard() {
         </div>
         <div className="bg-gray-900 border border-gray-800 p-6 rounded-xl">
           <h3 className="text-sm font-medium text-gray-400 mb-1">Snapshots Recorded</h3>
-          <p className="text-3xl font-extrabold text-purple-400">{snapshots.length}</p>
+          <p className="text-3xl font-extrabold text-purple-400">{filteredSnapshots.length}</p>
         </div>
       </div>
 
@@ -101,9 +134,9 @@ export default function Dashboard() {
         <div className="bg-gray-900 border border-gray-800 p-6 rounded-xl">
           <h3 className="text-lg font-semibold mb-4">Commit Growth Over Time</h3>
           <div className="h-64 w-full">
-            {snapshots.length > 0 ? (
+            {filteredSnapshots.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={snapshots}>
+                <BarChart data={filteredSnapshots}>
                   <XAxis dataKey="captured_at" tick={{ fill: '#9ca3af', fontSize: 12 }} />
                   <YAxis tick={{ fill: '#9ca3af', fontSize: 12 }} />
                   <Tooltip contentStyle={{ backgroundColor: '#111827', borderColor: '#374151' }} />
@@ -124,7 +157,7 @@ export default function Dashboard() {
       startDate={new Date(new Date().setFullYear(new Date().getFullYear() - 1))}
       endDate={new Date()}
       values={Object.entries(
-        snapshots.reduce((acc: any, s: any) => {
+        filteredSnapshots.reduce((acc: any, s: any) => {
           const date = s.captured_at ? s.captured_at.split('T')[0] : new Date().toISOString().split('T')[0];
           acc[date] = (acc[date] || 0) + (s.commit_count || 1);
           return acc;
