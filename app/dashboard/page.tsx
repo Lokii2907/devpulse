@@ -115,7 +115,7 @@ export default function Dashboard() {
             )}
           </div>
         </div>
-        
+
 {/* Contribution Activity Heatmap */}
 <div className="bg-gray-900 border border-gray-800 p-6 rounded-xl shadow-lg mt-6">
   <h3 className="text-lg font-semibold text-white mb-4">Contribution Activity Heatmap</h3>
@@ -123,11 +123,14 @@ export default function Dashboard() {
     <CalendarHeatmap
       startDate={new Date(new Date().setFullYear(new Date().getFullYear() - 1))}
       endDate={new Date()}
-      values={snapshots.map((s: any) => ({
-        date: s.captured_at ? s.captured_at.split('T')[0] : new Date().toISOString().split('T')[0],
-        count: s.commit_count || 1,
-      }))}
-      classForValue={(value) => {
+      values={Object.entries(
+        snapshots.reduce((acc: any, s: any) => {
+          const date = s.captured_at ? s.captured_at.split('T')[0] : new Date().toISOString().split('T')[0];
+          acc[date] = (acc[date] || 0) + (s.commit_count || 1);
+          return acc;
+        }, {})
+      ).map(([date, count]) => ({ date, count }))}
+      classForValue={(value: any) => {
         if (!value) {
           return 'color-empty';
         }
