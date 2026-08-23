@@ -3,7 +3,7 @@ import { useSession, signOut } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import CalendarHeatmap from 'react-calendar-heatmap';
-import 'react-calendar-heatmap/styles.css';
+import 'react-calendar-heatmap/dist/styles.css';
 
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
