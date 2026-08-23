@@ -155,7 +155,7 @@ export default function Dashboard() {
                   <XAxis dataKey="captured_at" tick={{ fill: '#9ca3af', fontSize: 12 }} />
                   <YAxis tick={{ fill: '#9ca3af', fontSize: 12 }} />
                   <Tooltip contentStyle={{ backgroundColor: '#111827', borderColor: '#374151' }} />
-                  <Bar dataKey="total_commits" fill="#10b981" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="total_commits" fill="#10b981" radius={[4, 4, 0, 0]} maxBarSize={60} />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
