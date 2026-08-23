@@ -2,6 +2,9 @@
 import { useSession, signOut } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import CalendarHeatmap from 'react-calendar-heatmap';
+import 'react-calendar-heatmap/styles.css';
+
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
@@ -114,7 +117,49 @@ export default function Dashboard() {
             )}
           </div>
         </div>
+        {/* Contribution Heatmap Card */}
+<div className="bg-gray-900 border border-gray-800 p-6 rounded-xl shadow-lg mt-6">
+  <h3 className="text-lg font-semibold text-white mb-4">Contribution Activity Heatmap</h3>
+  <div className="overflow-x-auto">
+    <CalendarHeatmap
+      startDate={new Date(new Date().setFullYear(new Date().getFullYear() - 1))}
+      endDate={new Date()}
+      values={snapshots.map((s: any) => ({
+        date: s.captured_at ? s.captured_at.split('T')[0] : new Date().toISOString().split('T')[0],
+        count: s.commit_count || 1, // maps your snapshot commit count
+      }))}
+      classForValue={(value) => {
+        if (!value) {
+          return 'color-empty';
+        }
+        return `color-github-${Math.min(value.count, 4)}`;
+      }}
+      showWeekdayLabels={true}
+    />
+  </div>
+</div>    
 
+{/* Contribution Activity Heatmap */}
+<div className="bg-gray-900 border border-gray-800 p-6 rounded-xl shadow-lg mt-6">
+  <h3 className="text-lg font-semibold text-white mb-4">Contribution Activity Heatmap</h3>
+  <div className="overflow-x-auto">
+    <CalendarHeatmap
+      startDate={new Date(new Date().setFullYear(new Date().getFullYear() - 1))}
+      endDate={new Date()}
+      values={snapshots.map((s: any) => ({
+        date: s.captured_at ? s.captured_at.split('T')[0] : new Date().toISOString().split('T')[0],
+        count: s.commit_count || 1,
+      }))}
+      classForValue={(value) => {
+        if (!value) {
+          return 'color-empty';
+        }
+        return `color-github-${Math.min(value.count, 4)}`;
+      }}
+      showWeekdayLabels={true}
+    />
+  </div>
+</div>
         {/* Language Distribution */}
         <div className="bg-gray-900 border border-gray-800 p-6 rounded-xl">
           <h3 className="text-lg font-semibold mb-4">Language Stack Breakdown</h3>
