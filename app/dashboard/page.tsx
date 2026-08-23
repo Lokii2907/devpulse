@@ -64,6 +64,21 @@ export default function Dashboard() {
     ? Object.entries(latestSnapshot.languages_json).map(([name, value]) => ({ name, value }))
     : [];
 
+    // Group snapshots by calendar date so same-day snapshots merge into one bar
+  const dailyDataMap = filteredSnapshots.reduce((acc: any, s: any) => {
+    const date = s.captured_at ? s.captured_at.split('T')[0] : 'Unknown';
+    // Keep the snapshot with the highest commit count for that day
+    if (!acc[date] || (s.total_commits || 0) > (acc[date].total_commits || 0)) {
+      acc[date] = {
+        captured_at: date,
+        total_commits: s.total_commits || 0,
+        repos_count: s.repos_count || 0,
+      };
+    }
+    return acc;
+  }, {});
+
+  const chartData = Object.values(dailyDataMap);
   return (
     <div className="min-h-screen bg-gray-950 text-white p-8">
       {/* Top Header Bar */}
@@ -136,7 +151,7 @@ export default function Dashboard() {
           <div className="h-64 w-full">
             {filteredSnapshots.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={filteredSnapshots}>
+                <BarChart data={chartData}>
                   <XAxis dataKey="captured_at" tick={{ fill: '#9ca3af', fontSize: 12 }} />
                   <YAxis tick={{ fill: '#9ca3af', fontSize: 12 }} />
                   <Tooltip contentStyle={{ backgroundColor: '#111827', borderColor: '#374151' }} />
